@@ -1443,3 +1443,8 @@ Caused by: java.lang.RuntimeException: Dati di autenticazione mancanti
 2025-05-16T20:05:08.355+02:00 DEBUG 13264 --- [Yovendo-AI] [http-nio-8080-exec-3] c.e.d.s.jwt.JWTAuthorizationFilter       : Autenticazione token JWT per email: test@gmail.com
 2025-05-16T20:05:08.355+02:00 DEBUG 13264 --- [Yovendo-AI] [http-nio-8080-exec-5] c.e.d.s.jwt.JWTAuthorizationFilter       : Autenticazione token JWT per email: test@gmail.com
 2025-05-16T20:06:20.739+02:00  WARN 13264 --- [Yovendo-AI] [http-nio-8080-exec-6] .m.m.a.ExceptionHandlerExceptionResolver : Resolved [org.springframework.web.servlet.resource.NoResourceFoundException: No static resource webhook/whatsapp.]
+2025-05-16T20:59:22.738+02:00  INFO 13264 --- [Yovendo-AI] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-05-16T20:59:22.764+02:00  INFO 13264 --- [Yovendo-AI] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-05-16T20:59:22.795+02:00  INFO 13264 --- [Yovendo-AI] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-05-16T20:59:22.834+02:00  INFO 13264 --- [Yovendo-AI] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-05-16T20:59:22.845+02:00  INFO 13264 --- [Yovendo-AI] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
