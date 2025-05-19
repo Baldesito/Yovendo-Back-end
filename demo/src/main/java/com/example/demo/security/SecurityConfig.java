@@ -102,6 +102,7 @@ public class SecurityConfig {
                         // Endpoint webhook - correggere il percorso per includere /api/webhook/**
                         .requestMatchers("/webhook/**", "/api/webhook/**").permitAll()
 
+
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/auth/me/**").hasRole("USER")
 

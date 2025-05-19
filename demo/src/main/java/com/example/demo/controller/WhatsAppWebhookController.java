@@ -26,7 +26,7 @@ import java.util.Optional;
 import java.time.LocalDateTime;
 
 @RestController
-@RequestMapping("/api/webhook")
+@RequestMapping("/webhook")
 public class WhatsAppWebhookController {
 
     private final OrganizzazioneRepository organizzazioneRepository;

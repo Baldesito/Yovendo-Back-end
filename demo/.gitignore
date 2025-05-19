@@ -17,7 +17,7 @@ target/
 .env
 **/application-dev.properties
 **/application-local.properties
-**/application-prod.properties
+
 
 ### IntelliJ IDEA ###
 .idea
