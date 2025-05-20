@@ -2,37 +2,34 @@
 FROM maven:3.9.6-eclipse-temurin-21 AS builder
 WORKDIR /app
 
-# Set encoding for Maven build to UTF-8
+# Set encoding for Maven build
 ENV MAVEN_OPTS="-Dfile.encoding=UTF-8"
 
-# Copy pom.xml first for better caching
 COPY pom.xml .
-
-# Download dependencies
 RUN mvn dependency:go-offline -B
 
-# Copy source code
 COPY src ./src
 
-# Build the application with explicit UTF-8 encoding
+# Build con UTF-8
 RUN mvn clean package -DskipTests -B -Dfile.encoding=UTF-8 -Dproject.build.sourceEncoding=UTF-8
 
 # Runtime stage - Updated to Java 21
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-# Copy the built JAR from builder stage
+# Copia il JAR
 COPY --from=builder /app/target/*.jar app.jar
 
-# Create upload directory
-RUN mkdir -p /tmp/uploads
-
-# Set environment variables for runtime
-ENV JAVA_OPTS="-Dfile.encoding=UTF-8"
+# Imposta solo variabili non sensibili
 ENV SPRING_PROFILES_ACTIVE=prod
+ENV SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
+ENV SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.PostgreSQLDialect
 
-# Expose port
+# Crea la directory uploads
+RUN mkdir -p /app/uploads
+
+# Esponi la porta
 EXPOSE 8080
 
-# Run the application with UTF-8 encoding
+# Avvia l'applicazione con debug
 CMD ["java", "-Dfile.encoding=UTF-8", "-Dspring.profiles.active=prod", "-jar", "app.jar"]
