@@ -1,12 +1,9 @@
 package com.example.demo.security;
 
-import com.example.demo.model.Utente;
 import com.example.demo.repository.UtenteRepository;
 import com.example.demo.security.jwt.JWTAuthenticationFilter;
 import com.example.demo.security.jwt.JWTAuthorizationFilter;
-import com.example.demo.security.model.UserDetailsImpl;
 import com.example.demo.service.UserDetailsServiceImpl;
-import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,12 +19,15 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
@@ -35,11 +35,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
+
     @Autowired
     UtenteRepository utenteRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
-
 
     @Value("${jwt.secret}")
     private String jwtSecret;
@@ -56,14 +56,11 @@ public class SecurityConfig {
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
 
-        // Log per debug
         logger.info("Configurazione di DaoAuthenticationProvider con UserDetailsService: {}",
                 userDetailsService.getClass().getName());
 
         authProvider.setUserDetailsService(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
-
-
         authProvider.setHideUserNotFoundExceptions(false);
 
         return authProvider;
@@ -75,8 +72,29 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
-        // Configura i filtri JWT con l'AuthenticationManager fornito
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList(
+                "http://localhost:5173",
+                "http://localhost:4173",
+                "https://yovendo-ai.netlify.app"
+        ));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        // Otteniamo l'AuthenticationManager dal contesto
+        AuthenticationManager authenticationManager = authenticationManager(http.getSharedObject(AuthenticationConfiguration.class));
+
+        // Configura i filtri JWT con l'AuthenticationManager
         JWTAuthenticationFilter jwtAuthenticationFilter = new JWTAuthenticationFilter(
                 authenticationManager, jwtSecret, jwtExpiration);
         jwtAuthenticationFilter.setFilterProcessesUrl("/api/auth/login");
@@ -85,6 +103,9 @@ public class SecurityConfig {
                 authenticationManager, jwtSecret, userDetailsService);
 
         http
+                // Abilita CORS
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
                 // Disabilita CSRF per API stateless
                 .csrf(AbstractHttpConfigurer::disable)
 
@@ -97,16 +118,18 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Endpoint di autenticazione pubblici
                         .requestMatchers("/api/auth/**").permitAll()
+
+                        // Endpoint health check
+                        .requestMatchers("/api/health", "/").permitAll()
+
                         .requestMatchers("/api/public/**").permitAll()
 
-                        // Endpoint webhook - correggere il percorso per includere /api/webhook/**
+                        // Endpoint webhook
                         .requestMatchers("/webhook/**", "/api/webhook/**").permitAll()
 
-
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/auth/me/**").hasRole("USER")
 
-                        // Endpoint utenti - aggiungere GET per utenti
+                        // Endpoint utenti
                         .requestMatchers("/api/utenti/register", "/api/utenti/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/utenti/**").permitAll()
 
@@ -121,8 +144,6 @@ public class SecurityConfig {
                         // Endpoint per upload documenti
                         .requestMatchers(HttpMethod.POST, "/api/documenti").permitAll()
 
-                        // API di test e debug (opzionale, rimuovere in produzione)
-                        .requestMatchers("/test/**").permitAll()
                         // Risorse statiche
                         .requestMatchers("/", "/index.html", "/static/**", "/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
 

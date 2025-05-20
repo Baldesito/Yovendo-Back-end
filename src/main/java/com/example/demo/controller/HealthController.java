@@ -2,15 +2,18 @@ package com.example.demo.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Date;
 
 @RestController
+@RequestMapping("/api")
 public class HealthController {
 
-    @GetMapping("/api/health")
+    @GetMapping("/health")
     public ResponseEntity<?> healthCheck() {
         Map<String, Object> response = new HashMap<>();
         response.put("status", "UP");
@@ -20,10 +23,10 @@ public class HealthController {
     }
 
     @GetMapping("/")
-    public ResponseEntity<?> home() {
+    public ResponseEntity<?> root() {
         Map<String, Object> response = new HashMap<>();
-        response.put("message", "Yovendo-AI API Server");
-        response.put("status", "running");
+        response.put("message", "Benvenuto nell'API di Yovendo-AI");
+        response.put("status", "online");
         response.put("timestamp", new Date().toString());
         return ResponseEntity.ok(response);
     }

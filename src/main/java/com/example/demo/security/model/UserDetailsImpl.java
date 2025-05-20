@@ -15,6 +15,8 @@ import java.util.Objects;
 
 @Data
 public class UserDetailsImpl implements UserDetails {
+
+
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -25,6 +27,9 @@ public class UserDetailsImpl implements UserDetails {
     private final String password;
     private final Long organizzazioneId;
     private final Collection<? extends GrantedAuthority> authorities;
+
+
+
 
     public UserDetailsImpl(Long id, String username, String email, String password, Long organizzazioneId,
                            Collection<? extends GrantedAuthority> authorities) {
@@ -37,10 +42,15 @@ public class UserDetailsImpl implements UserDetails {
     }
 
     public static UserDetailsImpl build(Utente user) {
-        List<GrantedAuthority> authorities = Collections.singletonList(
-                new SimpleGrantedAuthority(user.getRuolo())
-        );
 
+        String role = user.getRuolo();
+        if (!role.startsWith("ROLE_")) {
+            role = "ROLE_" + role;
+        }
+
+        List<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority(role)
+        );
         Long orgId = user.getOrganizzazione() != null ? user.getOrganizzazione().getId() : null;
 
         return new UserDetailsImpl(
