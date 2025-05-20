@@ -50,6 +50,15 @@ public class AuthController {
     @Value("${jwt.expiration}")
     private long jwtExpiration;
 
+
+    @GetMapping("/test")
+    public ResponseEntity<?> testEndpoint() {
+        return ResponseEntity.ok(new HashMap<String, Object>() {{
+            put("status", "online");
+            put("message", "API di autenticazione funzionanti");
+            put("timestamp", new Date().toString());
+        }});
+    }
     // Effettua il login e restituisce un token JWT
     // POST --> http://localhost:8080/api/auth/login
     @PostMapping("/login")
