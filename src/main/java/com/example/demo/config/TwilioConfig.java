@@ -15,13 +15,13 @@ import org.springframework.util.StringUtils;
 public class TwilioConfig {
     private static final Logger logger = LoggerFactory.getLogger(TwilioConfig.class);
 
-    @Value("${twilio.account.sid}")
+    @Value("${twilio.account.sid:}")
     private String accountSid;
 
-    @Value("${twilio.auth.token}")
+    @Value("${twilio.auth.token:}")
     private String authToken;
 
-    @Value("${twilio.whatsapp.number}")
+    @Value("${twilio.whatsapp.number:}")
     private String whatsappNumber;
 
     private boolean isInitialized = false;
@@ -33,11 +33,15 @@ public class TwilioConfig {
 
             // Verifica che le credenziali non siano vuote
             if (!StringUtils.hasText(accountSid) || !StringUtils.hasText(authToken) || !StringUtils.hasText(whatsappNumber)) {
-                logger.error("Credenziali Twilio mancanti o non valide:");
-                logger.error("Account SID: {}", StringUtils.hasText(accountSid) ? accountSid.substring(0, Math.min(8, accountSid.length())) + "..." : "MANCANTE");
-                logger.error("Auth Token: {}", StringUtils.hasText(authToken) ? authToken.substring(0, Math.min(4, authToken.length())) + "..." : "MANCANTE");
-                logger.error("WhatsApp Number: {}", StringUtils.hasText(whatsappNumber) ? whatsappNumber : "MANCANTE");
-                logger.error("Controlla il file application.properties o le variabili d'ambiente");
+                logger.warn("Credenziali Twilio mancanti o non valide:");
+                logger.warn("Account SID: {}", StringUtils.hasText(accountSid) ? accountSid.substring(0, Math.min(8, accountSid.length())) + "..." : "MANCANTE");
+                logger.warn("Auth Token: {}", StringUtils.hasText(authToken) ? authToken.substring(0, Math.min(4, authToken.length())) + "..." : "MANCANTE");
+                logger.warn("WhatsApp Number: {}", StringUtils.hasText(whatsappNumber) ? whatsappNumber : "MANCANTE");
+                logger.warn("Le funzionalità WhatsApp saranno disabilitate.");
+                logger.warn("Per abilitare Twilio, imposta le variabili TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_WHATSAPP_NUMBER");
+
+                // Usciamo con isInitialized = false, ma senza causare errori
+                isInitialized = false;
                 return;
             }
 
