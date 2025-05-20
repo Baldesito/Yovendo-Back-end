@@ -21,13 +21,4 @@ public class HealthController {
         response.put("service", "Yovendo-AI API");
         return ResponseEntity.ok(response);
     }
-
-    @GetMapping("/")
-    public ResponseEntity<?> root() {
-        Map<String, Object> response = new HashMap<>();
-        response.put("message", "Benvenuto nell'API di Yovendo-AI");
-        response.put("status", "online");
-        response.put("timestamp", new Date().toString());
-        return ResponseEntity.ok(response);
-    }
 }
