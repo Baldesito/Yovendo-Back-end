@@ -71,9 +71,6 @@ public class SecurityConfig {
         return authConfig.getAuthenticationManager();
     }
 
-    // Il metodo corsConfigurationSource() è stato rimosso da qui
-    // e viene iniettato tramite @Autowired dalla classe CorsConfig
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         // Otteniamo l'AuthenticationManager dal contesto
